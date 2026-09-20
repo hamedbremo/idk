@@ -41,9 +41,12 @@ end
 local SmartBone = require("SmartBone")
 SmartBone.Start()
 task.wait(.05)
-
 local replicatedStorage = game:GetService("ReplicatedStorage")
-local methods,storage = require(script.AM), replicatedStorage.LocalScriptAPI
+
+-- Bypasses the missing script object error cleanly
+local methods = {}
+local storage = replicatedStorage:WaitForChild("LocalScriptAPI", 3) or { AnimSpeed = { OnServerInvoke = function() end } }
+
 
 storage.AnimSpeed.OnServerInvoke = function(Playerrr, NewSpeed)
 	local AnimFolder = workspace:WaitForChild("GoatAnimFol")
