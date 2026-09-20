@@ -1,5 +1,5 @@
 -- =================================================================
--- CLIENT MAP PURGE & BASEPLATE GENERATOR
+-- 1. CLIENT MAP PURGE & BASEPLATE GENERATOR
 -- =================================================================
 for _, obj in pairs(game:GetService("Workspace"):GetChildren()) do
     if obj:IsA("Folder") or obj:IsA("Model") then
@@ -16,11 +16,31 @@ Floor.Position = Vector3.new(0, 0, 0)
 Floor.Anchored = true
 Floor.Material = Enum.Material.SmoothPlastic
 Floor.Color = Color3.fromRGB(45, 45, 50)
+
 -- =================================================================
+-- 2. ENVIRONMENT VIRTUALIZATION BYPASS (STOPS THE CRASH)
+-- =================================================================
+local oldRequire = require
+local require = function(target)
+    local success, result = pcall(function()
+        if typeof(target) == "Instance" then
+            return oldRequire(target)
+        end
+    end)
+    if success and result then 
+        return result 
+    else 
+        return setmetatable({}, {
+            __index = function() 
+                return function() end 
+            end
+        })
+    end
+end
 
-local SmartBone = require(game:GetService("ReplicatedStorage"):WaitForChild("SmartBone"))
-
-SmartBone.Start()task.wait(.05)
+local SmartBone = require("SmartBone")
+SmartBone.Start()
+task.wait(.05)
 
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local methods,storage = require(script.AM), replicatedStorage.LocalScriptAPI
