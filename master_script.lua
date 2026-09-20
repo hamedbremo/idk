@@ -1,47 +1,9 @@
--- =================================================================
--- 1. CLIENT MAP PURGE & BASEPLATE GENERATOR
--- =================================================================
-for _, obj in pairs(game:GetService("Workspace"):GetChildren()) do
-    if obj:IsA("Folder") or obj:IsA("Model") then
-        if obj.Name ~= game:GetService("Players").LocalPlayer.Name and not obj:FindFirstChildOfClass("Humanoid") then
-            obj:Destroy()
-        end
-    elseif obj:IsA("Part") or obj:IsA("MeshPart") then
-        if obj.Name ~= "Terrain" then obj:Destroy() end
-    end
-end
-local Floor = Instance.new("Part", workspace)
-Floor.Size = Vector3.new(600, 1, 600)
-Floor.Position = Vector3.new(0, 0, 0)
-Floor.Anchored = true
-Floor.Material = Enum.Material.SmoothPlastic
-Floor.Color = Color3.fromRGB(45, 45, 50)
+local SmartBone = require(game:GetService("ReplicatedStorage"):WaitForChild("SmartBone"))
 
--- =================================================================
--- 2. UNIVERSAL REQUIRE BYPASS (STOPS ALL ENVIRONMENT CRASHES)
--- =================================================================
-getfenv().require = function(target)
-    return setmetatable({}, {
-        __index = function(t, key)
-            if key == "AnimSpeed" or key == "LocalScriptAPI" then
-                return { OnServerInvoke = function() end }
-            end
-            return function() return t end
-        end
-    })
-end
-
-local oldRequire = require
-local require = getfenv().require
-
-local SmartBone = require("SmartBone")
-SmartBone.Start()
-task.wait(.05)
+SmartBone.Start()task.wait(.05)
 
 local replicatedStorage = game:GetService("ReplicatedStorage")
-local methods = {}
-local storage = replicatedStorage:WaitForChild("LocalScriptAPI", 2) or require()
-
+local methods,storage = require(script.AM), replicatedStorage.LocalScriptAPI
 
 storage.AnimSpeed.OnServerInvoke = function(Playerrr, NewSpeed)
 	local AnimFolder = workspace:WaitForChild("GoatAnimFol")
