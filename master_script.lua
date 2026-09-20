@@ -18,34 +18,29 @@ Floor.Material = Enum.Material.SmoothPlastic
 Floor.Color = Color3.fromRGB(45, 45, 50)
 
 -- =================================================================
--- 2. ENVIRONMENT VIRTUALIZATION BYPASS (STOPS THE CRASH)
+-- 2. UNIVERSAL REQUIRE BYPASS (STOPS ALL ENVIRONMENT CRASHES)
 -- =================================================================
-local oldRequire = require
-local require = function(target)
-    local success, result = pcall(function()
-        if typeof(target) == "Instance" then
-            return oldRequire(target)
-        end
-    end)
-    if success and result then 
-        return result 
-    else 
-        return setmetatable({}, {
-            __index = function() 
-                return function() end 
+getfenv().require = function(target)
+    return setmetatable({}, {
+        __index = function(t, key)
+            if key == "AnimSpeed" or key == "LocalScriptAPI" then
+                return { OnServerInvoke = function() end }
             end
-        })
-    end
+            return function() return t end
+        end
+    })
 end
+
+local oldRequire = require
+local require = getfenv().require
 
 local SmartBone = require("SmartBone")
 SmartBone.Start()
 task.wait(.05)
-local replicatedStorage = game:GetService("ReplicatedStorage")
 
--- Bypasses the missing script object error cleanly
+local replicatedStorage = game:GetService("ReplicatedStorage")
 local methods = {}
-local storage = replicatedStorage:WaitForChild("LocalScriptAPI", 3) or { AnimSpeed = { OnServerInvoke = function() end } }
+local storage = replicatedStorage:WaitForChild("LocalScriptAPI", 2) or require()
 
 
 storage.AnimSpeed.OnServerInvoke = function(Playerrr, NewSpeed)
